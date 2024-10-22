@@ -7,6 +7,7 @@ import (
 	"github.com/Kayky18/API_FULLCYCLE/internal/entity"
 	"github.com/Kayky18/API_FULLCYCLE/internal/infra/database"
 	"github.com/Kayky18/API_FULLCYCLE/internal/infra/webserver/handlers"
+	"github.com/go-chi/chi/v5"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -27,8 +28,11 @@ func main() {
 
 	productHandler := handlers.NewProductHandler(productDB)
 
-	http.HandleFunc("/products", productHandler.CreateProduct)
+	r := chi.NewRouter()
 
-	http.ListenAndServe(":8080", nil)
+	r.Post("/products", productHandler.CreateProduct)
+	r.Get("/products/{id}", productHandler.GetProduct)
+
+	http.ListenAndServe(":8080", r)
 
 }
