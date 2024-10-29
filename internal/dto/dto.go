@@ -9,3 +9,7 @@ type CreateUserInput struct {
 	Email    string `json:"email"`
 	Password string `json:"-"`
 }
+type GetJWTInput struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
