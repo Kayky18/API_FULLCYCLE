@@ -8,6 +8,8 @@ import (
 	"github.com/Kayky18/API_FULLCYCLE/internal/infra/database"
 	"github.com/Kayky18/API_FULLCYCLE/internal/infra/webserver/handlers"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/jwtauth"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -29,18 +31,30 @@ func main() {
 	productHandler := handlers.NewProductHandler(productDB)
 
 	userDB := database.NewUser(db)
-	userHandler := handlers.NewUserHandler(userDB, configs.TokenAuth, configs.JWTExpiresIn)
+	userHandler := handlers.NewUserHandler(userDB)
 
 	r := chi.NewRouter()
 
-	r.Post("/products", productHandler.CreateProduct)
+	r.Use(middleware.Logger)
 
-	r.Get("/products/{id}", productHandler.GetProduct)
-	r.Get("/products", productHandler.GetProducts)
+	r.Use(middleware.WithValue("jwt", configs.TokenAuth))
+	r.Use(middleware.WithValue("JwtExperiesIn", configs.JWTExpiresIn))
 
-	r.Delete("/products/{id}", productHandler.DeleteProduct)
+	r.Route(("/products"), func(r chi.Router) {
+		r.Use(jwtauth.Verifier(configs.TokenAuth))
 
-	r.Put("/products/{id}", productHandler.UpdateProduct)
+		r.Use(jwtauth.Authenticator)
+
+		r.Post("/", productHandler.CreateProduct)
+
+		r.Get("/{id}", productHandler.GetProduct)
+
+		r.Get("/", productHandler.GetProducts)
+
+		r.Delete("/{id}", productHandler.DeleteProduct)
+
+		r.Put("/{id}", productHandler.UpdateProduct)
+	})
 
 	r.Post("/user", userHandler.CreateUser)
 	r.Post("/user/generate-jwt", userHandler.GetJWT)
