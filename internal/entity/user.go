@@ -34,5 +34,5 @@ func (u *User) ValidatePassoword(password string) bool {
 
 	err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password))
 
-	return err == nil
+	return err != nil
 }

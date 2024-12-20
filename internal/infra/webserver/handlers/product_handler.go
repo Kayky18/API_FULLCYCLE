@@ -69,6 +69,7 @@ func (h *ProductHandler) GetProducts(w http.ResponseWriter, r *http.Request) {
 	page := r.URL.Query().Get("page")
 	limit := r.URL.Query().Get("limit")
 	sort := r.URL.Query().Get("sort")
+
 	if sort == "" {
 		sort = "asc"
 	}
@@ -83,6 +84,7 @@ func (h *ProductHandler) GetProducts(w http.ResponseWriter, r *http.Request) {
 	}
 
 	products, err := h.ProductDB.FindAll(pageint, limitint, sort)
+
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
